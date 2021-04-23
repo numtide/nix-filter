@@ -49,14 +49,19 @@ rec {
     path: type:
       _hasSuffix ".${ext}" path;
 
-  # Used to debug matchers.
+  # Wrap a matcher with this to debug its results
   debugMatch = label: fn:
     path: type:
       let
         ret = fn path type;
+        retStr = if ret then "true" else "false";
       in
-      builtins.trace "label=${label} path=${path} type=${type} ret=${toString ret}"
+      builtins.trace "label=${label} path=${path} type=${type} ret=${retStr}"
         ret;
+
+  # Add this at the end of the allow or deny, to trace all the unmatched paths
+  traceUnmatched = path: type:
+    builtins.trace "unmatched path=${path} type=${type}" false;
 
   # Lib stuff
 

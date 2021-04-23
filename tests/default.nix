@@ -3,21 +3,29 @@ let
 in
 {
   all = nix-filter {
-    path = ./demo1;
+    path = ./fixture1;
   };
 
   without-readme = nix-filter {
-    path = ./demo1;
+    path = ./fixture1;
     deny = [
       "README.md"
     ];
   };
 
   with-matchExt = nix-filter {
-    path = ./demo1;
+    path = ./fixture1;
     allow = [
       "package.json"
+      "src"
       (nix-filter.matchExt "js")
+    ];
+  };
+
+  trace = nix-filter {
+    path = ./fixture1;
+    allow = [
+      nix-filter.traceUnmatched
     ];
   };
 }

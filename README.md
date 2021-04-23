@@ -36,12 +36,50 @@ stdenv.mkDerivation {
     allow = [
       "src" # strings are automatically converted to ./src filter
       ./package.json # paths are automatically converted to path filters
-      (nix-filter.byExt "js") # create your own filters like that
+      (nix-filter.matchExt "js") # create your own filters like that
     ];
 
-    # TODO: doesn't work yet
-    deny = [
-    ];
+    deny = [ ];
   };
 }
 ```
+
+## How it works
+
+nix-filter is a function that takes:
+* `path` of type `path`: pointing to the root of the source to add to the
+    /nix/store.
+* `name` of type `string` (optional): the name of the derivation (defaults to
+    "source")
+* `allow` of type `list(string|path|matcher)` (optional): a list of patterns to
+    include (defaults to all).
+* `deny` of type `list(string|path|matcher)` (options): a list of patterns to
+    exclude (defaults to none).
+
+The `allow` and `deny` take a matcher, and automatically convert the `string`
+and `path` types to a matcher.
+
+The matcher is a function that takes a `path` and `type` and returns `true` if
+the pattern matches.
+
+## Builtin matchers
+
+* `matchExt`: `ext` -> returns a function that matches the given file extension.
+
+## Known limitation
+
+Because of how Nix works, a file located under a sub-folder will not be
+included if the folder isn't also matched.
+
+Eg:
+
+If the file is `src/frontend/index.js`, a matcher is needed for the `src`
+folder, the `src/frontend` folder, *and* the `src/frontend/index.js` file.
+
+## Future development
+
+A glob matcher would be nice.
+
+# License
+
+Copyright (c) 2021 Numtide under the MIT.
