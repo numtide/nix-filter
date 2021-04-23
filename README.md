@@ -32,7 +32,7 @@ want total control.
 stdenv.mkDerivation {
   name = "my-project";
   src = nix-filter {
-    src = ./.;
+    path = ./.;
     allow = [
       "src" # strings are automatically converted to ./src filter
       ./package.json # paths are automatically converted to path filters

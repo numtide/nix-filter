@@ -1,17 +1,4 @@
 # This is a pure and self-contained library
-let
-  hasSuffix =
-    # Suffix to check for
-    suffix:
-    # Input string
-    content:
-    let
-      lenContent = builtins.length content;
-      lenSuffix = builtins.length suffix;
-    in
-    lenContent >= lenSuffix &&
-    builtins.substring (lenContent - lenSuffix) lenContent content == suffix;
-in
 rec {
   # Default to filter when calling this lib.
   __functor = self: filter;
@@ -37,12 +24,13 @@ rec {
       # sub-folders.
       toMatcher = f:
         let
+          # Push these here to memoize the result
           path_ = toString f;
           path__ = "${toString path}/${f}";
         in
         if builtins.isFunction f then f
-        else if builtins.isPath f then (path: type: path_ == toString path)
-        else if builtins.isString f then (path: type: path__ == toString path)
+        else if builtins.isPath f then (path: _: path_ == path)
+        else if builtins.isString f then (path: _: path__ == path)
         else
           throw "Unsupported type ${builtins.typeOf f}";
 
@@ -57,7 +45,30 @@ rec {
     };
 
   # Match paths with the given extension
-  byExt = ext:
+  matchExt = ext:
     path: type:
-      (hasSuffix ".${ext} " path);
+      _hasSuffix ".${ext}" path;
+
+  # Used to debug matchers.
+  debugMatch = label: fn:
+    path: type:
+      let
+        ret = fn path type;
+      in
+      builtins.trace "label=${label} path=${path} type=${type} ret=${toString ret}"
+        ret;
+
+  # Lib stuff
+
+  _hasSuffix =
+    # Suffix to check for
+    suffix:
+    # Input string
+    content:
+    let
+      lenContent = builtins.stringLength content;
+      lenSuffix = builtins.stringLength suffix;
+    in
+    lenContent >= lenSuffix
+    && builtins.substring (lenContent - lenSuffix) lenContent content == suffix;
 }
