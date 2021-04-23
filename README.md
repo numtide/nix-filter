@@ -1,4 +1,4 @@
-# nix-filter - a small self-container source filtering lib
+# nix-filter - a small self-contained source filtering lib
 
 **STATUS: unstable**
 
