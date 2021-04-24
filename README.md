@@ -32,14 +32,21 @@ want total control.
 stdenv.mkDerivation {
   name = "my-project";
   src = nix-filter {
-    path = ./.;
+    root = ./.;
+    # If no include is passed, it will include all the paths.
     include = [
-      "src" # strings are automatically converted to ./src filter
-      ./package.json # paths are automatically converted to path filters
-      (nix-filter.matchExt "js") # create your own filters like that
+      # Include the "src" path relative to the root.
+      "src"
+      # Include this specific path. The path must be under the root.
+      ./package.json
+      # Include all files with the .js extension
+      (nix-filter.matchExt "js")
     ];
 
-    exclude = [ ];
+    # Works like include, but the reverse.
+    exclude = [
+      ./main.js
+    ];
   };
 }
 ```
@@ -78,7 +85,7 @@ folder, the `src/frontend` folder, *and* the `src/frontend/index.js` file.
 
 ## Future development
 
-A glob matcher would be nice.
+Solve the above issue. Add more matchers.
 
 # License
 

@@ -7,7 +7,7 @@ rec {
   filter =
     {
       # Base path to include
-      path
+      root
     , # Derivation name
       name ? "source"
     , # Only include the following path matches.
@@ -18,6 +18,8 @@ rec {
       exclude ? [ ]
     }:
     let
+      rootStr = toString root;
+
       # If an argument to include or exclude is a path, transform it to a matcher.
       #
       # This probably needs more work, I don't think that it works on
@@ -26,7 +28,7 @@ rec {
         let
           # Push these here to memoize the result
           path_ = toString f;
-          path__ = "${toString path}/${f}";
+          path__ = "${rootStr}/${f}";
         in
         if builtins.isFunction f then f
         else if builtins.isPath f then (path: _: path_ == path)
@@ -38,7 +40,8 @@ rec {
       exclude_ = map toMatcher exclude;
     in
     builtins.path {
-      inherit name path;
+      inherit name;
+      path = root;
       filter = path: type:
         (builtins.any (f: f path type) include_) &&
         (!builtins.any (f: f path type) exclude_);
