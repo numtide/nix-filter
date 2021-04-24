@@ -8,14 +8,14 @@ in
 
   without-readme = nix-filter {
     path = ./fixture1;
-    deny = [
+    exclude = [
       "README.md"
     ];
   };
 
   with-matchExt = nix-filter {
     path = ./fixture1;
-    allow = [
+    include = [
       "package.json"
       "src"
       (nix-filter.matchExt "js")
@@ -24,7 +24,7 @@ in
 
   trace = nix-filter {
     path = ./fixture1;
-    allow = [
+    include = [
       nix-filter.traceUnmatched
     ];
   };

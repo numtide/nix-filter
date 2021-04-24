@@ -33,13 +33,13 @@ stdenv.mkDerivation {
   name = "my-project";
   src = nix-filter {
     path = ./.;
-    allow = [
+    include = [
       "src" # strings are automatically converted to ./src filter
       ./package.json # paths are automatically converted to path filters
       (nix-filter.matchExt "js") # create your own filters like that
     ];
 
-    deny = [ ];
+    exclude = [ ];
   };
 }
 ```
@@ -51,12 +51,12 @@ nix-filter is a function that takes:
     /nix/store.
 * `name` of type `string` (optional): the name of the derivation (defaults to
     "source")
-* `allow` of type `list(string|path|matcher)` (optional): a list of patterns to
+* `include` of type `list(string|path|matcher)` (optional): a list of patterns to
     include (defaults to all).
-* `deny` of type `list(string|path|matcher)` (options): a list of patterns to
+* `exclude` of type `list(string|path|matcher)` (options): a list of patterns to
     exclude (defaults to none).
 
-The `allow` and `deny` take a matcher, and automatically convert the `string`
+The `include` and `exclude` take a matcher, and automatically convert the `string`
 and `path` types to a matcher.
 
 The matcher is a function that takes a `path` and `type` and returns `true` if
