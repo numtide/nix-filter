@@ -1,6 +1,6 @@
 # nix-filter - a small self-container source filtering lib
 
-**STATUS: unstable**
+**STATUS: beta**
 
 A cool way to include only what you need.
 
