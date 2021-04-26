@@ -21,9 +21,6 @@ rec {
       rootStr = toString root;
 
       # If an argument to include or exclude is a path, transform it to a matcher.
-      #
-      # This probably needs more work, I don't think that it works on
-      # sub-folders.
       toMatcher = f:
         let
           # Push these here to memoize the result
@@ -31,8 +28,8 @@ rec {
           path__ = "${rootStr}/${f}";
         in
         if builtins.isFunction f then f
-        else if builtins.isPath f then (path: _: path_ == path)
-        else if builtins.isString f then (path: _: path__ == path)
+        else if builtins.isPath f then (path: _: _isPathPrefix path_ path)
+        else if builtins.isString f then (path: _: _isPathPrefix path__ path)
         else
           throw "Unsupported type ${builtins.typeOf f}";
 
@@ -79,4 +76,61 @@ rec {
     in
     lenContent >= lenSuffix
     && builtins.substring (lenContent - lenSuffix) lenContent content == suffix;
+
+  # Determine segment-wise if one path is a prefix of another
+  #
+  # Paths need to be split into segments since a simple string
+  # prefix check would naively conclude things like "/nix/sto"
+  # is a path prefix of "/nix/store" even though they are completely
+  # different directories.
+  #
+  # >>> _isPathPrefix /nix/var/ /nix/var/nix/profiles/
+  # true
+  #
+  # >>> _isPathPrefix "store" /nix/store/
+  # false
+  _isPathPrefix =
+    # Prefix to search for in `path`, can be a string or a path
+    prefixPath:
+    # Path to search, can be a string or a path
+    path:
+    let
+      prefixSegments = _splitPath prefixPath;
+      pathSegments = _splitPath path;
+
+      # Compare the lists of segments. If any segment doesn't match,
+      # the prefix is a not a prefix of the path.
+      #
+      # This iterates over the prefix and should not be run if the
+      # path is shorter than the prefix or it will throw runtime
+      # errors.
+      comparison =
+        builtins.foldl' (acc: prefixSegment:
+          let
+            isPrefix = acc.isPrefix && prefixSegment == builtins.head acc.remainingPath;
+            remainingPath = builtins.tail acc.remainingPath;
+          in
+          { inherit isPrefix remainingPath; }
+        ) { isPrefix = true; remainingPath = pathSegments; } prefixSegments;
+    in
+    # Fail immediately if the path is shorter than the prefix; do not try to
+    # compare.
+    if builtins.length prefixSegments > builtins.length pathSegments
+    then false
+    else comparison.isPrefix;
+
+  # Split a path into its segments, filtering out empty segments
+  #
+  # >>> _splitPath "/nix/store/"
+  # [ "nix" "store" ]
+  #
+  # >>> _splitPath /home/me/////projects/nix-filter////
+  # [ "home" "me" "projects" "nix-filter" ]
+  _splitPath =
+    # Path to split, can be a path or a string
+    path:
+    let
+      pathStr = builtins.toString path;
+    in
+    builtins.filter (x: x != "" && x != []) (builtins.split "/" pathStr);
 }

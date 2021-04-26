@@ -22,6 +22,14 @@ in
     ];
   };
 
+  with-prefixMatch = nix-filter {
+    root = ./fixture1;
+    include = [
+      "src" # should match everything under src/
+      "READ" # should not match README.md
+    ];
+  };
+
   trace = nix-filter {
     root = ./fixture1;
     include = [
