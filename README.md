@@ -1,6 +1,10 @@
-# nix-filter - a small self-contained source filtering lib
+<h1 align="center">
+  <img src="nix-filter.svg" alt="logo" width="200">
+  <br>
+  nix-filter - a small self-contained source filtering lib
+</h1>
 
-**STATUS: unstable**
+**STATUS: beta**
 
 A cool way to include only what you need.
 
@@ -32,14 +36,21 @@ want total control.
 stdenv.mkDerivation {
   name = "my-project";
   src = nix-filter {
-    path = ./.;
-    allow = [
-      "src" # strings are automatically converted to ./src filter
-      ./package.json # paths are automatically converted to path filters
-      (nix-filter.matchExt "js") # create your own filters like that
+    root = ./.;
+    # If no include is passed, it will include all the paths.
+    include = [
+      # Include the "src" path relative to the root.
+      "src"
+      # Include this specific path. The path must be under the root.
+      ./package.json
+      # Include all files with the .js extension
+      (nix-filter.matchExt "js")
     ];
 
-    deny = [ ];
+    # Works like include, but the reverse.
+    exclude = [
+      ./main.js
+    ];
   };
 }
 ```
@@ -51,12 +62,12 @@ nix-filter is a function that takes:
     /nix/store.
 * `name` of type `string` (optional): the name of the derivation (defaults to
     "source")
-* `allow` of type `list(string|path|matcher)` (optional): a list of patterns to
+* `include` of type `list(string|path|matcher)` (optional): a list of patterns to
     include (defaults to all).
-* `deny` of type `list(string|path|matcher)` (options): a list of patterns to
+* `exclude` of type `list(string|path|matcher)` (options): a list of patterns to
     exclude (defaults to none).
 
-The `allow` and `deny` take a matcher, and automatically convert the `string`
+The `include` and `exclude` take a matcher, and automatically convert the `string`
 and `path` types to a matcher.
 
 The matcher is a function that takes a `path` and `type` and returns `true` if
@@ -78,7 +89,7 @@ folder, the `src/frontend` folder, *and* the `src/frontend/index.js` file.
 
 ## Future development
 
-A glob matcher would be nice.
+Solve the above issue. Add more matchers.
 
 # License
 

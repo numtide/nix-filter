@@ -7,18 +7,20 @@ rec {
   filter =
     {
       # Base path to include
-      path
+      root
     , # Derivation name
       name ? "source"
-    , # Only allow the following path matches.
+    , # Only include the following path matches.
       #
       # Allows all files by default.
-      allow ? [ (_:_: true) ]
+      include ? [ (_:_: true) ]
     , # Ignore the following matches
-      deny ? [ ]
+      exclude ? [ ]
     }:
     let
-      # If an argument to allow or deny is a path, transform it to a matcher.
+      rootStr = toString root;
+
+      # If an argument to include or exclude is a path, transform it to a matcher.
       #
       # This probably needs more work, I don't think that it works on
       # sub-folders.
@@ -26,7 +28,7 @@ rec {
         let
           # Push these here to memoize the result
           path_ = toString f;
-          path__ = "${toString path}/${f}";
+          path__ = "${rootStr}/${f}";
         in
         if builtins.isFunction f then f
         else if builtins.isPath f then (path: _: path_ == path)
@@ -34,14 +36,15 @@ rec {
         else
           throw "Unsupported type ${builtins.typeOf f}";
 
-      allow_ = map toMatcher allow;
-      deny_ = map toMatcher deny;
+      include_ = map toMatcher include;
+      exclude_ = map toMatcher exclude;
     in
     builtins.path {
-      inherit name path;
+      inherit name;
+      path = root;
       filter = path: type:
-        (builtins.any (f: f path type) allow_) &&
-        (!builtins.any (f: f path type) deny_);
+        (builtins.any (f: f path type) include_) &&
+        (!builtins.any (f: f path type) exclude_);
     };
 
   # Match paths with the given extension
@@ -59,7 +62,7 @@ rec {
       builtins.trace "label=${label} path=${path} type=${type} ret=${retStr}"
         ret;
 
-  # Add this at the end of the allow or deny, to trace all the unmatched paths
+  # Add this at the end of the include or exclude, to trace all the unmatched paths
   traceUnmatched = path: type:
     builtins.trace "unmatched path=${path} type=${type}" false;
 
