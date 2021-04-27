@@ -1,4 +1,8 @@
-# nix-filter - a small self-container source filtering lib
+<h1 align="center">
+  <img src="nix-filter.svg" alt="logo" width="200">
+  <br>
+  nix-filter - a small self-container source filtering lib
+</h1>
 
 **STATUS: beta**
 
