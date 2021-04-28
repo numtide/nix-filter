@@ -30,21 +30,27 @@ rec {
           path_ = toString f;
           path__ = "${rootStr}/${f}";
         in
-        if builtins.isFunction f then f
-        else if builtins.isPath f then (path: _: path_ == path)
-        else if builtins.isString f then (path: _: path__ == path)
+        if builtins.isFunction f then
+          builtins.concatMap (p: _expandPath root p []) (_matchManually root f)
+        else if builtins.isPath f then _expandPath root f []
+        else if builtins.isString f then _expandPath root (_stringToPath root f) []
         else
           throw "Unsupported type ${builtins.typeOf f}";
 
-      include_ = map toMatcher include;
-      exclude_ = map toMatcher exclude;
+      include_ = builtins.foldl' (includes: path:
+        includes // { ${toString path} = true; }
+      ) {} (builtins.concatMap toMatcher include);
+
+      exclude_ = builtins.foldl' (excludes: path:
+        excludes // { ${toString path} = true; }
+      ) {} (builtins.concatMap toMatcher exclude);
     in
     builtins.path {
       inherit name;
       path = root;
       filter = path: type:
-        (builtins.any (f: f path type) include_) &&
-        (!builtins.any (f: f path type) exclude_);
+        (builtins.hasAttr (toString path) include_) &&
+        (!builtins.hasAttr (toString path) exclude_);
     };
 
   # Match paths with the given extension
@@ -79,4 +85,60 @@ rec {
     in
     lenContent >= lenSuffix
     && builtins.substring (lenContent - lenSuffix) lenContent content == suffix;
+
+  # Expand a path into a list containing itself and its parents up to the root.
+  #
+  # >>> _expandPath /home/me /home/me/projects/nix-filter/tests []
+  # [ /home/me/projects/nix-filter/tests /home/me/projects/nix-filter /home/me/projects ]
+  #
+  # >>> _expandPath /home/me /nix/var/nix/profiles []
+  # []
+  _expandPath =
+    # The root of the project, type: path
+    root:
+    # The path to expand, type: path
+    path:
+    # Paths accumulated while expanding `path`
+    acc:
+    if path == root then acc
+    # If we hit /, `path` wasn't in our root path (i.e. the path is outside the project),
+    # so discard the accumulated results.
+    else if path == /. then []
+    else _expandPath root (builtins.dirOf path) (acc ++ [path]);
+
+  # Traverse the filesystem starting at the root and accumulate a list of
+  # paths accepted by matchFn (some matcher function).
+  #
+  # >>> _matchManually ./fixture1 (matchExt "js")
+  # [ /home/me/projects/nix-filter/tests/fixture1/src/main.js ]
+  _matchManually =
+    # The root of the project, type: path
+    root:
+    # The matcher function to run on paths within the root of the project,
+    # type: path -> file type (string) -> bool
+    matchFn:
+    let
+      files = builtins.readDir root;
+      filesAsList = map (fileName:
+        {
+          path = _stringToPath root fileName;
+          type = builtins.getAttr fileName files;
+        }
+      ) (builtins.attrNames files);
+      matchedPaths = map (file: file.path)
+        (builtins.filter (file: matchFn file.path file.type) filesAsList);
+      innerMatchedPaths = builtins.concatMap (file: _matchManually file.path matchFn)
+        (builtins.filter (file: file.type == "directory") filesAsList);
+    in
+    matchedPaths ++ innerMatchedPaths;
+
+  # Properly convert a string to a path based on the given root
+  #
+  # >>> _stringToPath /nix "store"
+  # /nix/store
+  _stringToPath = root: str:
+    # Parentheses necessary here! If they are not included, it is treated as
+    # (root + "/") + str. Since a path cannot end in "/", the slash gets
+    # completely removed, effectively resulting in `root + str`.
+    root + ("/" + str);
 }

@@ -22,6 +22,13 @@ in
     ];
   };
 
+  with-nestedMatches = nix-filter {
+    root = ./fixture1;
+    include = [
+      (nix-filter.matchExt "js")
+    ];
+  };
+
   trace = nix-filter {
     root = ./fixture1;
     include = [
