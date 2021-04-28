@@ -21,6 +21,9 @@ rec {
       rootStr = toString root;
 
       # If an argument to include or exclude is a path, transform it to a matcher.
+      #
+      # This probably needs more work, I don't think that it works on
+      # sub-folders.
       toMatcher = f:
         let
           # Push these here to memoize the result
@@ -28,8 +31,8 @@ rec {
           path__ = "${rootStr}/${f}";
         in
         if builtins.isFunction f then f
-        else if builtins.isPath f then (path: _: _isPathPrefix path_ path)
-        else if builtins.isString f then (path: _: _isPathPrefix path__ path)
+        else if builtins.isPath f then (path: _: path_ == path)
+        else if builtins.isString f then (path: _: path__ == path)
         else
           throw "Unsupported type ${builtins.typeOf f}";
 
@@ -43,6 +46,11 @@ rec {
         (builtins.any (f: f path type) include_) &&
         (!builtins.any (f: f path type) exclude_);
     };
+
+  # Match a directory and any path inside of it
+  inDirectory = directory:
+    path: type:
+      _isPathPrefix directory path;
 
   # Match paths with the given extension
   matchExt = ext:

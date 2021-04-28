@@ -22,11 +22,11 @@ in
     ];
   };
 
-  with-prefixMatch = nix-filter {
+  with-inDirectory = nix-filter rec {
     root = ./fixture1;
     include = [
-      "src" # should match everything under src/
-      "READ" # should not match README.md
+      (nix-filter.inDirectory (root + "/src")) # should match everything under ./fixture1/src/
+      (nix-filter.inDirectory (root + "/READ")) # should not match README.md
     ];
   };
 
