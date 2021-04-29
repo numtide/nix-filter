@@ -58,6 +58,27 @@ rec {
     # Add / to the end to make sure we match a full directory prefix
     || _hasPrefix (directory_ + "/") path;
 
+  # Match any directory
+  isDirectory = _: _: type: type == "directory";
+
+  # Combines matchers
+  and = a: b: root:
+    let
+      a_ = a root;
+      b_ = b root;
+    in
+    path: type:
+      (a_ path type) && (b_ path type);
+
+  # Combines matchers
+  or = a: b: root:
+    let
+      a_ = a root;
+      b_ = b root;
+    in
+    path: type:
+      (a_ path type) || (b_ path type);
+
   # Match paths with the given extension
   matchExt = ext:
     root: path: type:
