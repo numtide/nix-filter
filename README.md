@@ -76,6 +76,8 @@ the pattern matches.
 ## Builtin matchers
 
 * `matchExt`: `ext` -> returns a function that matches the given file extension.
+* `inDirectory`: `directory` -> returns a function that matches a directory and
+    any path inside of it.
 
 ## Known limitation
 
