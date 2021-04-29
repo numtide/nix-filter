@@ -79,16 +79,6 @@ the pattern matches.
 * `inDirectory`: `directory` -> returns a function that matches a directory and
     any path inside of it.
 
-## Known limitation
-
-Because of how Nix works, a file located under a sub-folder will not be
-included if the folder isn't also matched.
-
-Eg:
-
-If the file is `src/frontend/index.js`, a matcher is needed for the `src`
-folder, the `src/frontend` folder, *and* the `src/frontend/index.js` file.
-
 ## Future development
 
 Solve the above issue. Add more matchers.

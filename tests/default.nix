@@ -22,6 +22,15 @@ in
     ];
   };
 
+  with-matchExt2 = nix-filter {
+    root = ./fixture1;
+    include = [
+      "package.json"
+      "src/innerdir"
+      (nix-filter.matchExt "js")
+    ];
+  };
+
   with-inDirectory = nix-filter rec {
     root = ./fixture1;
     include = [

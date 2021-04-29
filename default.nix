@@ -31,7 +31,8 @@ rec {
           in
           if builtins.isFunction f then f root
           else
-            (path: _: path_ == path);
+            path: type:
+              path_ == path || (type == "directory" && _hasPrefix "${path}/" path_);
 
         include_ = map toMatcher include;
         exclude_ = map toMatcher exclude;
