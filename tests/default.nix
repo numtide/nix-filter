@@ -25,8 +25,19 @@ in
   with-inDirectory = nix-filter rec {
     root = ./fixture1;
     include = [
-      (nix-filter.inDirectory (root + "/src")) # should match everything under ./fixture1/src/
-      (nix-filter.inDirectory (root + "/READ")) # should not match README.md
+      (nix-filter.inDirectory "src") # should match everything under ./fixture1/src/
+      (nix-filter.inDirectory "READ") # should not match README.md
+    ];
+  };
+
+  # should match everything under ./fixture1/src/ but not in ./fixture1/src/innerdir/
+  with-inDirectory2 = nix-filter rec {
+    root = ./fixture1;
+    include = [
+      (nix-filter.inDirectory "src")
+    ];
+    exclude = [
+      (nix-filter.inDirectory ./fixture1/src/innerdir)
     ];
   };
 
