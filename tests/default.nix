@@ -31,7 +31,7 @@ in
     ];
   };
 
-  with-inDirectory = nix-filter rec {
+  with-inDirectory = nix-filter {
     root = ./fixture1;
     include = [
       (nix-filter.inDirectory "src") # should match everything under ./fixture1/src/
@@ -40,13 +40,20 @@ in
   };
 
   # should match everything under ./fixture1/src/ but not in ./fixture1/src/innerdir/
-  with-inDirectory2 = nix-filter rec {
+  with-inDirectory2 = nix-filter {
     root = ./fixture1;
     include = [
       (nix-filter.inDirectory "src")
     ];
     exclude = [
       (nix-filter.inDirectory ./fixture1/src/innerdir)
+    ];
+  };
+
+  combiners = nix-filter {
+    root = ./fixture1;
+    include = with nix-filter; [
+      (and isDirectory (inDirectory "src"))
     ];
   };
 

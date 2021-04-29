@@ -78,6 +78,14 @@ the pattern matches.
 * `matchExt`: `ext` -> returns a function that matches the given file extension.
 * `inDirectory`: `directory` -> returns a function that matches a directory and
     any path inside of it.
+* `isDirectory`: matches all paths that are directories
+
+## Combining matchers
+
+* `and`: `a -> b -> c`
+  combines the result of two matchers into a new matcher.
+* `or`: `a -> b -> c`
+  combines the result of two matchers into a new matcher.
 
 ## Future development
 
