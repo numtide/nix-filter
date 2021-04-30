@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
+#
+# Our little test runner.
+#
+set -euo pipefail
 
-set -e
+cd "$(dirname "$0")"
 
 extra_flags=""
 
