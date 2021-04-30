@@ -136,6 +136,6 @@ in
         nix-filter.traceUnmatched
       ];
     };
-    expected = [];
+    expected = [ ];
   };
 }
