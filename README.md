@@ -55,9 +55,18 @@ stdenv.mkDerivation {
 }
 ```
 
-## How it works
+# Usage
 
-nix-filter is a function that takes:
+Import this folder. Eg:
+
+```nix
+let
+  nix-filter = import ./path/to/nix-filter;
+in
+ # ...
+```
+
+The top-level is a functor that takes:
 * `path` of type `path`: pointing to the root of the source to add to the
     /nix/store.
 * `name` of type `string` (optional): the name of the derivation (defaults to
@@ -75,10 +84,12 @@ the pattern matches.
 
 ## Builtin matchers
 
-* `matchExt`: `ext` -> returns a function that matches the given file extension.
-* `inDirectory`: `directory` -> returns a function that matches a directory and
+The functor also contains a number of matchers:
+
+* `nix-filter.matchExt`: `ext` -> returns a function that matches the given file extension.
+* `nix-filer.inDirectory`: `directory` -> returns a function that matches a directory and
     any path inside of it.
-* `isDirectory`: matches all paths that are directories
+* `nix-filter.isDirectory`: matches all paths that are directories
 
 ## Combining matchers
 
@@ -87,9 +98,38 @@ the pattern matches.
 * `or`: `a -> b -> c`
   combines the result of two matchers into a new matcher.
 
-## Future development
+# Design notes
 
-Solve the above issue. Add more matchers.
+This solution uses `builtins.path { path, name, filter ? path: type: true }`
+under the hood, which ships with Nix.
+
+While traversing the filesystem, starting from `path`, it will call `filter`
+on each file and folder recursively. If the `filter` returns `false` then the
+file or folder is ignored. If a folder is ignored, it won't recurse into it
+anymore.
+
+Because of that, it makes it difficult to implement recursive glob matchers.
+Something like `**/*.js` would necessarily have to add every folder, to be
+able to traverse them. And those empty folders will end-up in the output.
+
+If we want to control rebuild, it's important to have a fixed set of folders.
+
+One possibility is to use a two-pass system, where first all the folders are
+being added, and then the empty ones are being filtered out. But all of this
+happens at Nix evaluation time. Nix evaluation is already slow enough like
+that.
+
+That's why nix-filter is asking the users to explicitly list all the folders
+that they want to add.
+
+# Future development
+
+Add more matchers.
+
+# Related projects
+
+* nixpkgs' `lib.cleanSourceWith`.
+* All the git-based solutions. See https://github.com/hercules-ci/gitignore.nix#comparison
 
 # License
 
