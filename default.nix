@@ -71,13 +71,16 @@ rec {
       (a_ path type) && (b_ path type);
 
   # Combines matchers
-  or = a: b: root:
+  or_ = a: b: root:
     let
       a_ = a root;
       b_ = b root;
     in
     path: type:
       (a_ path type) || (b_ path type);
+
+  # Or is actually a keyword, but can also be used as a key in an attrset.
+  or = or_;
 
   # Match paths with the given extension
   matchExt = ext:

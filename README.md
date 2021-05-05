@@ -95,8 +95,10 @@ The functor also contains a number of matchers:
 
 * `and`: `a -> b -> c`
   combines the result of two matchers into a new matcher.
-* `or`: `a -> b -> c`
+* `or_`: `a -> b -> c`
   combines the result of two matchers into a new matcher.
+
+NOTE: `or` is a keyword in nix, which is why we use a variation here.
 
 # Design notes
 
