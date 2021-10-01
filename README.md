@@ -31,6 +31,10 @@ want total control.
 
 ## Example usage
 
+nix-filter works best for projects where the files needed for a build are easy
+to match. Using it with only an `exclude` argument will likely not reduce the
+reasons for rebuilds by a lot. Here's an Example:
+
 ```nix
 { stdenv, nix-filter }:
 stdenv.mkDerivation {
@@ -122,7 +126,7 @@ happens at Nix evaluation time. Nix evaluation is already slow enough like
 that.
 
 That's why nix-filter is asking the users to explicitly list all the folders
-that they want to add.
+that they want to `include`, and using only an `exclude` is not recommended.
 
 # Future development
 
