@@ -91,7 +91,7 @@ rec {
   debugMatch = label: fn:
     root: path: type:
       let
-        ret = fn path type;
+        ret = fn root path type;
         retStr = if ret then "true" else "false";
       in
       builtins.trace "label=${label} path=${path} type=${type} ret=${retStr}"
