@@ -73,7 +73,7 @@ The top-level is a functor that takes:
     "source")
 * `include` of type `list(string|path|matcher)` (optional): a list of patterns to
     include (defaults to all).
-* `exclude` of type `list(string|path|matcher)` (options): a list of patterns to
+* `exclude` of type `list(string|path|matcher)` (optional): a list of patterns to
     exclude (defaults to none).
 
 The `include` and `exclude` take a matcher, and automatically convert the `string`
@@ -99,6 +99,9 @@ The functor also contains a number of matchers:
   combines the result of two matchers into a new matcher.
 
 NOTE: `or` is a keyword in nix, which is why we use a variation here.
+
+REMINDER: both, `include` & `exlude` already XOR elements, so `or_` is
+not useful at the top level.
 
 # Design notes
 
