@@ -6,8 +6,6 @@
 
 **STATUS: beta**
 
-A cool way to include only what you need.
-
 When using nix within a project, developers often use `src = ./.;` for a
 project like this:
 
@@ -25,9 +23,11 @@ files left over by the editor.
 
 The main workaround is to use either `builtins.fetchGit ./.` or one of the
 many gitignore filter projects but this is not precise enough. If the
-project README changes, it should rebuild the project. If the nix code
-changes, it shouldn't rebuild the project. That's why this project exists. I
-want total control.
+project README changes, it should not rebuild the project. If the nix code
+changes, it should not rebuild the project.
+
+This project is a small library that makes it easy to filter in and out what
+files should go into a nix derivation.
 
 ## Example usage
 
