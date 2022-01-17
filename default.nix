@@ -21,21 +21,9 @@ rec {
       let
         rootStr = toString root;
 
-        # If an argument to include or exclude is a path, transform it to a matcher.
-        #
-        # This probably needs more work, I don't think that it works on
-        # sub-folders.
-        toMatcher = f:
-          let
-            path_ = _toCleanPath root f;
-          in
-          if builtins.isFunction f then f root
-          else
-            path: type:
-              path_ == path || (type == "directory" && _hasPrefix "${path}/" path_);
-
-        include_ = map toMatcher include;
-        exclude_ = map toMatcher exclude;
+        callMatcher = args: _toMatcher ({ inherit root; } // args);
+        include_ = map (callMatcher { matchParents = true; }) include;
+        exclude_ = map (callMatcher { matchParents = false; }) exclude;
       in
       builtins.path {
         inherit name;
@@ -48,10 +36,10 @@ rec {
   # Match a directory and any path inside of it
   inDirectory =
     directory:
-    root:
+    args:
     let
       # Convert `directory` to a path to clean user input.
-      directory_ = _toCleanPath root directory;
+      directory_ = _toCleanPath args.root directory;
     in
     path: type:
     directory_ == path
@@ -62,46 +50,63 @@ rec {
   isDirectory = _: _: type: type == "directory";
 
   # Combines matchers
-  and = a: b: root:
+  and = a: b: args:
     let
-      a_ = a root;
-      b_ = b root;
+      a_ = a args;
+      b_ = b args;
+      toMatcher = _toMatcher args;
     in
     path: type:
-      (a_ path type) && (b_ path type);
+      (toMatcher a path type) && (toMatcher b path type);
 
   # Combines matchers
-  or_ = a: b: root:
+  or_ = a: b: args:
     let
-      a_ = a root;
-      b_ = b root;
+      a_ = a args;
+      b_ = b args;
+      toMatcher = _toMatcher args;
     in
     path: type:
-      (a_ path type) || (b_ path type);
+      (toMatcher a path type) || (toMatcher b path type);
 
   # Or is actually a keyword, but can also be used as a key in an attrset.
   or = or_;
 
   # Match paths with the given extension
   matchExt = ext:
-    root: path: type:
+    args: path: type:
       _hasSuffix ".${ext}" path;
 
   # Wrap a matcher with this to debug its results
   debugMatch = label: fn:
-    root: path: type:
+    args: path: type:
       let
-        ret = fn root path type;
+        ret = fn args path type;
         retStr = if ret then "true" else "false";
       in
       builtins.trace "label=${label} path=${path} type=${type} ret=${retStr}"
         ret;
 
   # Add this at the end of the include or exclude, to trace all the unmatched paths
-  traceUnmatched = root: path: type:
+  traceUnmatched = args: path: type:
     builtins.trace "unmatched path=${path} type=${type}" false;
 
   # Lib stuff
+
+  # If an argument to include or exclude is a path, transform it to a matcher.
+  #
+  # This probably needs more work, I don't think that it works on
+  # sub-folders.
+  _toMatcher = args: f:
+    let
+      path_ = _toCleanPath args.root f;
+    in
+    if builtins.isFunction f then f args
+    else
+      path: type:
+        path_ == path || args.matchParents
+                          && type == "directory"
+                          && _hasPrefix "${path}/" path_;
 
   # Makes sure a path is:
   # * absolute
