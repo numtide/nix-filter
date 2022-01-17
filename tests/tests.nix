@@ -113,6 +113,47 @@ in
     ];
   };
 
+  excluding-paths-keeps-the-parents = rec {
+    root = ./fixture1;
+    actual = nix-filter {
+      inherit root;
+      include = with nix-filter; [
+        (inDirectory "src")
+      ];
+      exclude = with nix-filter; [
+        "src/components"
+        "src/innerdir/inner.js"
+      ];
+    };
+    expected = [
+      "src"
+      "src/innerdir"
+      "src/main.js"
+    ];
+  };
+
+  exclude-string-or-matchExt-and-inDirectory = rec {
+    root = ./fixture1;
+    actual = nix-filter {
+      inherit root;
+      include = with nix-filter; [
+        (inDirectory "src")
+      ];
+      exclude = with nix-filter; [
+        (or_
+          "src/components/widget.jsx"
+          (and (matchExt "js") (inDirectory "src/innerdir"))
+        )
+      ];
+    };
+    expected = [
+      "src"
+      "src/components"
+      "src/innerdir"
+      "src/main.js"
+    ];
+  };
+
   combiners = rec {
     root = ./fixture1;
     actual = nix-filter {
