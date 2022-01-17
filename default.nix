@@ -17,7 +17,7 @@ rec {
     , # Ignore the following matches
       exclude ? [ ]
     }:
-      assert builtins.isPath root;
+      assert _pathIsDirectory root;
       let
         rootStr = toString root;
 
@@ -109,7 +109,7 @@ rec {
   #
   # Returns a string so there is no risk of adding it to the store by mistake.
   _toCleanPath = absPath: path:
-    assert builtins.isPath absPath;
+    assert _pathIsDirectory absPath;
     if builtins.isPath path then
       toString path
     else if builtins.isString path then
@@ -138,4 +138,7 @@ rec {
       lenPrefix = builtins.stringLength prefix;
     in
     prefix == builtins.substring 0 lenPrefix content;
+
+  # Returns true if the path exists and is a directory, throws an error otherwise
+  _pathIsDirectory = p: builtins.pathExists p && builtins.isAttrs (builtins.readDir p);
 }
