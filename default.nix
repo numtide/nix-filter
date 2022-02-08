@@ -105,8 +105,7 @@ rec {
     else
       path: type:
         path_ == path || args.matchParents
-                          && type == "directory"
-                          && _hasPrefix "${path}/" path_;
+                          && _hasPrefix path_ (toString path);
 
   # Makes sure a path is:
   # * absolute
