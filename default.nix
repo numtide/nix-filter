@@ -19,8 +19,6 @@ rec {
     }:
       assert _pathIsDirectory root;
       let
-        rootStr = toString root;
-
         callMatcher = args: _toMatcher ({ inherit root; } // args);
         include_ = map (callMatcher { matchParents = true; }) include;
         exclude_ = map (callMatcher { matchParents = false; }) exclude;
@@ -52,8 +50,6 @@ rec {
   # Combines matchers
   and = a: b: args:
     let
-      a_ = a args;
-      b_ = b args;
       toMatcher = _toMatcher args;
     in
     path: type:
@@ -62,8 +58,6 @@ rec {
   # Combines matchers
   or_ = a: b: args:
     let
-      a_ = a args;
-      b_ = b args;
       toMatcher = _toMatcher args;
     in
     path: type:
