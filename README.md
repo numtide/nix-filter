@@ -91,7 +91,7 @@ the pattern matches.
 The functor also contains a number of matchers:
 
 * `nix-filter.matchExt`: `ext` -> returns a function that matches the given file extension.
-* `nix-filer.inDirectory`: `directory` -> returns a function that matches a directory and
+* `nix-filter.inDirectory`: `directory` -> returns a function that matches a directory and
     any path inside of it.
 * `nix-filter.isDirectory`: matches all paths that are directories
 
