@@ -87,6 +87,11 @@ rec {
     root: path: type:
       _hasSuffix ".${ext}" path;
 
+  # Filter out files or folders with this exact name
+  matchName = name:
+    root: path: type:
+      builtins.baseNameOf path == name;
+
   # Wrap a matcher with this to debug its results
   debugMatch = label: fn:
     root: path: type:
