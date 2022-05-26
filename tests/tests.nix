@@ -74,6 +74,20 @@ in
     ];
   };
 
+  with-matchName = rec {
+    root = ./fixture1;
+    actual = nix-filter {
+      inherit root;
+      exclude = [
+        (nix-filter.matchName "src")
+      ];
+    };
+    expected = [
+      "README.md"
+      "package.json"
+    ];
+  };
+
   with-inDirectory = rec {
     root = ./fixture1;
     actual = nix-filter {
