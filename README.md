@@ -71,7 +71,7 @@ in
 ```
 
 The top-level is a functor that takes:
-* `path` of type `path`: pointing to the root of the source to add to the
+* `root` of type `path`: pointing to the root of the source to add to the
     /nix/store.
 * `name` of type `string` (optional): the name of the derivation (defaults to
     "source")
