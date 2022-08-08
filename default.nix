@@ -99,13 +99,17 @@ rec {
   _toMatcher = args: f:
     let
       path_ = _toCleanPath args.root f;
+      pathIsDirectory = _pathIsDirectory path_;
     in
     if builtins.isFunction f then f args
-    else
-      path: type:
-        path_ == path || args.matchParents
-                          && type == "directory"
-                          && _hasPrefix "${path}/" path_;
+    else path: type:
+      (if pathIsDirectory then 
+          inDirectory path_ args path type
+        else 
+          path_ == path) || args.matchParents
+                              && type == "directory"
+                              && _hasPrefix "${path}/" path_;
+
 
   # Makes sure a path is:
   # * absolute
@@ -117,7 +121,10 @@ rec {
     if builtins.isPath path then
       toString path
     else if builtins.isString path then
-      toString (absPath + ("/" + path))
+      if builtins.substring 0 1 path == "/" then
+        path
+      else
+        toString (absPath + ("/" + path))
     else
       throw "unsupported type ${builtins.typeOf path}, expected string or path";
 
@@ -143,6 +150,8 @@ rec {
     in
     prefix == builtins.substring 0 lenPrefix content;
 
-  # Returns true if the path exists and is a directory, throws an error otherwise
-  _pathIsDirectory = p: builtins.pathExists p && builtins.isAttrs (builtins.readDir p);
+  # Returns true if the path exists and is a directory and false otherwise
+  _pathIsDirectory = p:
+    builtins.pathExists p
+    && (builtins.readDir (builtins.dirOf p)).${builtins.baseNameOf p} == "directory";
 }
