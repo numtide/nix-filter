@@ -44,23 +44,7 @@ in
       inherit root;
       include = [
         "package.json"
-        "src"
-        (nix-filter.matchExt "js")
-      ];
-    };
-    expected = [
-      "package.json"
-      "src"
-      "src/main.js"
-    ];
-  };
-
-  with-matchExt2 = rec {
-    root = ./fixture1;
-    actual = nix-filter {
-      inherit root;
-      include = [
-        "package.json"
+        "src/components/widget.jsx"
         "src/innerdir"
         (nix-filter.matchExt "js")
       ];
@@ -68,9 +52,11 @@ in
     expected = [
       "package.json"
       "src"
-      "src/main.js"
+      "src/components"
+      "src/components/widget.jsx"
       "src/innerdir"
       "src/innerdir/inner.js"
+      "src/main.js"
     ];
   };
 
@@ -143,6 +129,53 @@ in
       "src"
       "src/innerdir"
       "src/main.js"
+    ];
+  };
+
+  including-a-file-also-includes-the-parents = rec {
+    root = ./fixture1;
+    actual = nix-filter {
+      inherit root;
+      include = [
+        "src/innerdir/inner.js"
+      ];
+    };
+    expected = [
+      "src"
+      "src/innerdir"
+      "src/innerdir/inner.js"
+    ];
+  };
+
+  including-a-directory-also-includes-the-parents = rec {
+    root = ./fixture1;
+    actual = nix-filter {
+      inherit root;
+      include = [
+        "src/components"
+      ];
+      exclude = [
+        (nix-filter.matchExt "jsx")
+      ];
+    };
+    expected = [
+      "src"
+      "src/components"
+    ];
+  };
+
+  including-a-directory-also-includes-the-childs = rec {
+    root = ./fixture1;
+    actual = nix-filter {
+      inherit root;
+      include = [
+        "src/innerdir"
+      ];
+    };
+    expected = [
+      "src"
+      "src/innerdir"
+      "src/innerdir/inner.js"
     ];
   };
 
