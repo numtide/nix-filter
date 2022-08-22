@@ -17,7 +17,7 @@ rec {
     , # Ignore the following matches
       exclude ? [ ]
     }:
-      assert _pathIsDirectory root;
+      assert _assertPathIsDirectory root;
       let
         callMatcher = args: _toMatcher ({ inherit root; } // args);
         include_ = map (callMatcher { matchParents = true; }) include;
@@ -117,7 +117,7 @@ rec {
   #
   # Returns a string so there is no risk of adding it to the store by mistake.
   _toCleanPath = absPath: path:
-    assert _pathIsDirectory absPath;
+    assert _assertPathIsDirectory absPath;
     if builtins.isPath path then
       toString path
     else if builtins.isString path then
@@ -150,8 +150,14 @@ rec {
     in
     prefix == builtins.substring 0 lenPrefix content;
 
-  # Returns true if the path exists and is a directory and false otherwise
+  # Returns true if the path exists and is a directory, and false otherwise
+  # total function but doesn't work with flake roots
   _pathIsDirectory = p:
     builtins.pathExists p
     && (builtins.readDir (builtins.dirOf p)).${builtins.baseNameOf p} == "directory";
+
+  # Returns true if the path exists and is a directory, and throws an error otherwise
+  # partial function but works with flake roots
+  _assertPathIsDirectory = p:
+    builtins.pathExists p && builtins.isAttrs (builtins.readDir p);
 }
