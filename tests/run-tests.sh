@@ -14,8 +14,9 @@ fi
 
 # Need to build first or the store paths don't exist
 # for default.nix to traverse
-nix-build &>/dev/null
-results="$(nix-instantiate --eval --strict --json $extra_flags)"
+nix-build >/dev/null
+echo "---------------------------------------------------------------------"
+results="$(nix-instantiate --eval --strict --json $extra_flags 2>/dev/null)"
 
 # Normalize input before handing it over to jq
 if [[ -n "$extra_flags" ]] && [[ "${1::1}" != "@" ]]; then
