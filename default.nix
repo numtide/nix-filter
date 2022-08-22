@@ -155,7 +155,14 @@ rec {
     let
       parent = builtins.dirOf p;
       base = builtins.unsafeDiscardStringContext (builtins.baseNameOf p);
+      inNixStore = builtins.storeDir == toString parent;
     in
-    builtins.pathExists p &&
-    (builtins.readDir parent).${builtins.unsafeDiscardStringContext base} == "directory";
+    # If the parent folder is /nix/store, we assume p is a directory. Because
+      # reading /nix/store is very slow, and not allowed in every environments.
+    inNixStore ||
+    (
+      builtins.pathExists p &&
+      (builtins.readDir parent).${builtins.unsafeDiscardStringContext base} == "directory"
+    );
+
 }
