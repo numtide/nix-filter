@@ -103,12 +103,12 @@ rec {
     in
     if builtins.isFunction f then f args
     else path: type:
-      (if pathIsDirectory then 
-          inDirectory path_ args path type
-        else 
-          path_ == path) || args.matchParents
-                              && type == "directory"
-                              && _hasPrefix "${path}/" path_;
+      (if pathIsDirectory then
+        inDirectory path_ args path type
+      else
+        path_ == path) || args.matchParents
+      && type == "directory"
+      && _hasPrefix "${path}/" path_;
 
 
   # Makes sure a path is:
