@@ -152,6 +152,10 @@ rec {
 
   # Returns true if the path exists and is a directory and false otherwise
   _pathIsDirectory = p:
-    builtins.pathExists p
-    && (builtins.readDir (builtins.dirOf p)).${builtins.baseNameOf p} == "directory";
+    let
+      parent = builtins.dirOf p;
+      base = builtins.unsafeDiscardStringContext (builtins.baseNameOf p);
+    in
+    builtins.pathExists p &&
+    (builtins.readDir parent).${builtins.unsafeDiscardStringContext base} == "directory";
 }
