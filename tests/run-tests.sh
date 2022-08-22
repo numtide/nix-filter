@@ -6,19 +6,25 @@ set -euo pipefail
 
 cd "$(dirname "$0")"
 
-extra_flags=""
+nix_args=(
+    # Simulate flakes. Paths that are in the include are allowed.
+    --include "prj_root=.."
+    --option restrict-eval true
+    --option allow-import-from-derivation false
+)
 
 if [[ "$#" -eq 1 ]]; then
-    extra_flags="-A $1"
+    nix_args+=(-A "$1")
 fi
 
 # Need to build first or the store paths don't exist
 # for default.nix to traverse
-nix-build &>/dev/null
-results="$(nix-instantiate --eval --strict --json $extra_flags)"
+nix-build "${nix_args[@]}" >/dev/null
+echo "---------------------------------------------------------------------"
+results="$(nix-instantiate --eval --strict --json "${nix_args[@]}")"
 
 # Normalize input before handing it over to jq
-if [[ -n "$extra_flags" ]] && [[ "${1::1}" != "@" ]]; then
+if [[ "$#" -eq 1 && "${1::1}" != "@" ]]; then
     results="{ \"$1\": $results }"
 fi
 

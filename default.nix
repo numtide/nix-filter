@@ -103,12 +103,12 @@ rec {
     in
     if builtins.isFunction f then f args
     else path: type:
-      (if pathIsDirectory then 
-          inDirectory path_ args path type
-        else 
-          path_ == path) || args.matchParents
-                              && type == "directory"
-                              && _hasPrefix "${path}/" path_;
+      (if pathIsDirectory then
+        inDirectory path_ args path type
+      else
+        path_ == path) || args.matchParents
+      && type == "directory"
+      && _hasPrefix "${path}/" path_;
 
 
   # Makes sure a path is:
@@ -152,6 +152,17 @@ rec {
 
   # Returns true if the path exists and is a directory and false otherwise
   _pathIsDirectory = p:
-    builtins.pathExists p
-    && (builtins.readDir (builtins.dirOf p)).${builtins.baseNameOf p} == "directory";
+    let
+      parent = builtins.dirOf p;
+      base = builtins.unsafeDiscardStringContext (builtins.baseNameOf p);
+      inNixStore = builtins.storeDir == toString parent;
+    in
+    # If the parent folder is /nix/store, we assume p is a directory. Because
+      # reading /nix/store is very slow, and not allowed in every environments.
+    inNixStore ||
+    (
+      builtins.pathExists p &&
+      (builtins.readDir parent).${builtins.unsafeDiscardStringContext base} == "directory"
+    );
+
 }
