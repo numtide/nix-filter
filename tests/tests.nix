@@ -201,6 +201,22 @@ in
     ];
   };
 
+  in-nix-store = rec {
+    # Use the string interpolation to force the path into the store
+    root = "${./fixture1}";
+    actual = nix-filter {
+      inherit root;
+      include = [
+        "src/innerdir"
+      ];
+    };
+    expected = [
+      "src"
+      "src/innerdir"
+      "src/innerdir/inner.js"
+    ];
+  };
+
   combiners = rec {
     root = ./fixture1;
     actual = nix-filter {
