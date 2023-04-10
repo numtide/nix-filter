@@ -86,6 +86,27 @@ and `path` types to a matcher.
 The matcher is a function that takes a `path` and `type` and returns `true` if
 the pattern matches.
 
+The flake usage is like this:
+
+```nix
+{
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-22.11";
+    nix-filter.url = "github:numtide/nix-filter";
+  };
+  outputs = { self, nixpkgs, nix-filter }:
+    let
+      pkgs = nixpkgs.legacyPackages.x86_64-linux;
+      # Avoid calling it nix-filter as it may result in an infinite recursion
+      filter = nix-filter.lib;
+     # ....
+    in
+    {
+      # ...
+    };
+}
+```
+
 ## Builtin matchers
 
 The functor also contains a number of matchers:
