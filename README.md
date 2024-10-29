@@ -158,6 +158,8 @@ Add more matchers.
 
 # Related projects
 
+* globset - a superior implementation that is compatible with nixpkgs
+    filesets. See https://github.com/pdtpartners/globset
 * nixpkgs' `lib.cleanSourceWith`.
 * All the git-based solutions. See https://github.com/hercules-ci/gitignore.nix#comparison
 
