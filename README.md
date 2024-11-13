@@ -1,10 +1,20 @@
-<h1 align="center">
-  <img src="nix-filter.svg" alt="logo" width="200">
-  <br>
-  nix-filter - a small self-contained source filtering lib
-</h1>
+<div align="center">
 
-**STATUS: beta**
+# nix-filter
+
+<img src="nix-filter.svg" height="150"/>
+
+**small self-contained source filtering lib **
+
+*A <a href="https://numtide.com/">numtide</a> project.*
+
+<p>
+<img alt="Static Badge" src="https://img.shields.io/badge/Status-beta-orange">
+<a href="https://github.com/numtide/nix-filter/actions/workflows/nix.yml"><img src="https://github.com/numtide/nix-filter/actions/workflows/nix.yml/badge.svg"/></a>
+<a href="https://app.element.io/#/room/#home:numtide.com"><img src="https://img.shields.io/badge/Support-%23numtide-blue"/></a>
+</p>
+
+</div>
 
 When using nix within a project, developers often use `src = ./.;` for a
 project like this:
