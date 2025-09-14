@@ -4,7 +4,7 @@
 
 <img src="nix-filter.svg" height="150"/>
 
-**small self-contained source filtering lib **
+**small self-contained source filtering lib**
 
 *A <a href="https://numtide.com/">numtide</a> project.*
 
