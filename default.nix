@@ -63,8 +63,9 @@ rec {
     path: type:
       (toMatcher a path type) || (toMatcher b path type);
 
-  # Or is actually a keyword, but can also be used as a key in an attrset.
-  or = or_;
+  # Or is actually a keyword, but can also be used as a key in an attrset
+  # when quoted.
+  "or" = or_;
 
   # Match paths with the given extension
   matchExt = ext:
