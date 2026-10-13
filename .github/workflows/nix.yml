@@ -17,7 +17,7 @@ jobs:
           - ubuntu-20.04
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: NixOS/nix-installer-action@main
       - run: tests/run-tests.sh
 
